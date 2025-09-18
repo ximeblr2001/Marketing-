@@ -1,0 +1,49 @@
+CREATE TABLE "user" (
+    user_id SERIAL PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    email VARCHAR(255) UNIQUE NOT NULL
+);
+
+CREATE TABLE campaign (
+    campaign_id SERIAL PRIMARY KEY,
+    user_id INT REFERENCES "user"(user_id) NOT NULL,
+    name VARCHAR(255) NOT NULL,
+    budget DECIMAL(10, 2) NOT NULL,
+    start_date DATE NOT NULL,
+    end_date DATE NOT NULL,
+    description TEXT
+);
+
+CREATE TABLE customer (
+    customer_id SERIAL PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    email VARCHAR(255) UNIQUE NOT NULL,
+    region VARCHAR(100),
+    demographics JSONB
+);
+
+CREATE TABLE segment (
+    segment_id SERIAL PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    criteria JSONB
+);
+
+CREATE TABLE campaign_channel (
+    channel_id SERIAL PRIMARY KEY,
+    campaign_id INT REFERENCES campaign(campaign_id) NOT NULL,
+    channel_type VARCHAR(50) NOT NULL
+);
+
+CREATE TABLE performance_data (
+    data_id SERIAL PRIMARY KEY,
+    channel_id INT REFERENCES campaign_channel(channel_id) NOT NULL,
+    metric_name VARCHAR(255) NOT NULL,
+    metric_value DECIMAL(10, 2) NOT NULL,
+    timestamp TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+CREATE TABLE customer_segment (
+    customer_id INT REFERENCES customer(customer_id) ON DELETE CASCADE,
+    segment_id INT REFERENCES segment(segment_id) ON DELETE CASCADE,
+    PRIMARY KEY (customer_id, segment_id)
+);
